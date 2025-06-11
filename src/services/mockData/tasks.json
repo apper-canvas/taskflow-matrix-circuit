@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "title": "Review quarterly financial reports",
+    "description": "Analyze Q3 performance metrics and prepare summary for stakeholder meeting",
+    "priority": "high",
+    "category": "Work",
+    "dueDate": "2024-01-15T10:00:00.000Z",
+    "completed": false,
+    "archived": false,
+    "createdAt": "2024-01-10T09:00:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "2",
+    "title": "Complete React component refactoring",
+    "description": "Update legacy components to use hooks and improve performance",
+    "priority": "medium",
+    "category": "Development",
+    "dueDate": "2024-01-18T16:00:00.000Z",
+    "completed": false,
+    "archived": false,
+    "createdAt": "2024-01-08T14:30:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "3",
+    "title": "Schedule dentist appointment",
+    "description": "Annual cleaning and checkup - call Dr. Smith's office",
+    "priority": "low",
+    "category": "Personal",
+    "dueDate": "2024-01-20T12:00:00.000Z",
+    "completed": true,
+    "archived": false,
+    "createdAt": "2024-01-05T11:15:00.000Z",
+    "completedAt": "2024-01-12T13:45:00.000Z"
+  },
+  {
+    "id": "4",
+    "title": "Plan weekend hiking trip",
+    "description": "Research trails, check weather, pack gear for Mount Wilson hike",
+    "priority": "medium",
+    "category": "Personal",
+    "dueDate": "2024-01-19T18:00:00.000Z",
+    "completed": false,
+    "archived": false,
+    "createdAt": "2024-01-09T16:20:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "5",
+    "title": "Update project documentation",
+    "description": "Write API documentation and update README with latest changes",
+    "priority": "high",
+    "category": "Development",
+    "dueDate": "2024-01-16T17:00:00.000Z",
+    "completed": false,
+    "archived": false,
+    "createdAt": "2024-01-11T10:45:00.000Z",
+    "completedAt": null
+  }
+]
