@@ -38,14 +38,14 @@ const AddTaskForm = ({ categories, onSubmit, onCancel }) => {
       return;
     }
 
-    const taskData = {
-      ...formData,
+const taskData = {
       title: formData.title.trim(),
       description: formData.description.trim(),
+      priority: formData.priority,
+      category: formData.category,
       dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
       completed: false,
       archived: false,
-      createdAt: new Date(),
       completedAt: null
     };
 

@@ -1,122 +1,156 @@
-import { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import AddTaskForm from '@/components/organisms/AddTaskForm';
+import { taskService } from '@/services/api/taskService';
+import { categoryService } from '@/services/api/categoryService';
 import TaskList from '@/components/organisms/TaskList';
 import CategorySidebar from '@/components/organisms/CategorySidebar';
 import PageHeader from '@/components/organisms/PageHeader';
-import ErrorMessage from '@/components/organisms/ErrorMessage';
+import AddTaskForm from '@/components/organisms/AddTaskForm';
 import LoadingSkeleton from '@/components/organisms/LoadingSkeleton';
-import { taskService, categoryService } from '@/services';
-
+import ErrorMessage from '@/components/organisms/ErrorMessage';
+import NoContentMessage from '@/components/organisms/NoContentMessage';
+import SearchInputWithClear from '@/components/molecules/SearchInputWithClear';
+import ApperIcon from '@/components/ApperIcon';
+import Button from '@/components/atoms/Button';
 const HomePage = () => {
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('priority');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [tasksResult, categoriesResult] = await Promise.all([
-          taskService.getAll(),
-          categoryService.getAll()
-        ]);
-        setTasks(tasksResult);
-        setCategories(categoriesResult);
-      } catch (err) {
-        setError(err.message || 'Failed to load data');
-        toast.error('Failed to load tasks');
-      } finally {
-        setLoading(false);
-      }
-    };
     loadData();
   }, []);
 
-  const handleTaskComplete = async (taskId) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
-
-    // Optimistic update
-    setTasks(prevTasks => 
-      prevTasks.map(t => 
-        t.id === taskId 
-          ? { ...t, completed: !t.completed, completedAt: !t.completed ? new Date() : null }
-          : t
-      )
-    );
-
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      await taskService.update(taskId, { 
+      const [tasksData, categoriesData] = await Promise.all([
+        taskService.getAll(),
+        categoryService.getAll()
+      ]);
+      
+      // Transform database fields to UI format
+      const transformedTasks = tasksData.map(task => ({
+        id: task.Id,
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        category: task.category,
+        dueDate: task.due_date ? new Date(task.due_date) : null,
+        completed: task.completed,
+        archived: task.archived,
+        createdAt: task.CreatedOn ? new Date(task.CreatedOn) : new Date(),
+        completedAt: task.completed_at ? new Date(task.completed_at) : null
+      }));
+
+      const transformedCategories = categoriesData.map(cat => ({
+        id: cat.Id,
+        name: cat.Name,
+        taskCount: cat.task_count || 0
+      }));
+
+      setTasks(transformedTasks);
+      setCategories(transformedCategories);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError('Failed to load data. Please try again.');
+      toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+};
+
+  const handleAddTask = async (taskData) => {
+    try {
+      const newTask = await taskService.create(taskData);
+      
+      // Transform database response to UI format
+      const transformedTask = {
+        id: newTask.Id,
+        title: newTask.title,
+        description: newTask.description,
+        priority: newTask.priority,
+        category: newTask.category,
+        dueDate: newTask.due_date ? new Date(newTask.due_date) : null,
+        completed: newTask.completed,
+        archived: newTask.archived,
+        createdAt: newTask.CreatedOn ? new Date(newTask.CreatedOn) : new Date(),
+        completedAt: newTask.completed_at ? new Date(newTask.completed_at) : null
+      };
+
+      setTasks(prev => [transformedTask, ...prev]);
+      setShowAddForm(false);
+      toast.success('Task added successfully!');
+    } catch (err) {
+      console.error('Error adding task:', err);
+      toast.error('Failed to add task. Please try again.');
+    }
+  };
+
+  const handleCompleteTask = async (taskId) => {
+    try {
+      const task = tasks.find(t => t.id === taskId);
+      const updatedTask = await taskService.update(taskId, {
+        ...task,
         completed: !task.completed,
         completedAt: !task.completed ? new Date() : null
       });
-      toast.success(task.completed ? 'Task reopened' : 'Task completed!');
+
+      setTasks(prev => prev.map(t => 
+        t.id === taskId 
+          ? { 
+              ...t, 
+              completed: !t.completed,
+              completedAt: !t.completed ? new Date() : null 
+            }
+          : t
+      ));
+      
+      toast.success(task.completed ? 'Task marked as incomplete' : 'Task completed!');
     } catch (err) {
-      // Rollback on error
-      setTasks(prevTasks => 
-        prevTasks.map(t => 
-          t.id === taskId 
-            ? { ...t, completed: task.completed, completedAt: task.completedAt }
-            : t
-        )
-      );
+      console.error('Error updating task:', err);
       toast.error('Failed to update task');
     }
   };
 
-  const handleTaskDelete = async (taskId) => {
-    // Optimistic update
-    setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
+  const handleEditTask = async (taskId, editedData) => {
+    try {
+      const updatedTask = await taskService.update(taskId, editedData);
+      
+      setTasks(prev => prev.map(t => 
+        t.id === taskId 
+          ? { 
+              ...t, 
+              ...editedData,
+              dueDate: editedData.dueDate
+            }
+          : t
+      ));
+      
+      toast.success('Task updated successfully!');
+    } catch (err) {
+      console.error('Error updating task:', err);
+      toast.error('Failed to update task');
+    }
+  };
 
+  const handleDeleteTask = async (taskId) => {
     try {
       await taskService.delete(taskId);
-      toast.success('Task deleted');
+      setTasks(prev => prev.filter(t => t.id !== taskId));
+      toast.success('Task deleted successfully!');
     } catch (err) {
-      // Reload on error
-      const tasksResult = await taskService.getAll();
-      setTasks(tasksResult);
+      console.error('Error deleting task:', err);
       toast.error('Failed to delete task');
-    }
+}
   };
-
-  const handleTaskAdd = async (taskData) => {
-    try {
-      const newTask = await taskService.create(taskData);
-      setTasks(prevTasks => [newTask, ...prevTasks]);
-      setShowAddForm(false);
-      toast.success('Task created');
-    } catch (err) {
-      toast.error('Failed to create task');
-    }
-  };
-
-  const handleTaskEdit = async (taskId, taskData) => {
-    // Optimistic update
-    setTasks(prevTasks => 
-      prevTasks.map(t => 
-        t.id === taskId ? { ...t, ...taskData } : t
-      )
-    );
-
-    try {
-      await taskService.update(taskId, taskData);
-      toast.success('Task updated');
-    } catch (err) {
-      // Reload on error
-      const tasksResult = await taskService.getAll();
-      setTasks(tasksResult);
-      toast.error('Failed to update task');
-    }
-  };
-
   const activeTasks = tasks.filter(task => !task.archived);
   
   const filteredTasks = activeTasks.filter(task => {
@@ -186,12 +220,12 @@ const HomePage = () => {
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+<div className="flex-1 overflow-y-auto p-6">
           <TaskList
             tasks={sortedTasks}
-            onTaskComplete={handleTaskComplete}
-            onTaskDelete={handleTaskDelete}
-            onTaskEdit={handleTaskEdit}
+            onTaskComplete={handleCompleteTask}
+            onTaskDelete={handleDeleteTask}
+            onTaskEdit={handleEditTask}
             searchQuery={searchQuery}
             categories={categories}
           />
@@ -214,9 +248,9 @@ const HomePage = () => {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <AddTaskForm
+<AddTaskForm
                 categories={categories}
-                onSubmit={handleTaskAdd}
+                onSubmit={handleAddTask}
                 onCancel={() => setShowAddForm(false)}
               />
             </motion.div>

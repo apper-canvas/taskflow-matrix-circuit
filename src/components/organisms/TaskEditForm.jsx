@@ -29,10 +29,11 @@ const TaskEditForm = ({ task, onSave, onCancel, categories = [] }) => {
       return;
     }
 
-    const updatedData = {
-      ...formData,
+const updatedData = {
       title: formData.title.trim(),
       description: formData.description.trim(),
+      priority: formData.priority,
+      category: formData.category,
       dueDate: formData.dueDate ? new Date(formData.dueDate) : null
     };
 
