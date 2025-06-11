@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import ApperIcon from './ApperIcon';
+import FormField from '@/components/molecules/FormField';
+import Input from '@/components/atoms/Input';
+import Select from '@/components/atoms/Select';
+import Button from '@/components/atoms/Button';
 
-const TaskEditForm = ({ task, onSave, onCancel }) => {
+const TaskEditForm = ({ task, onSave, onCancel, categories = [] }) => {
   const [formData, setFormData] = useState({
     title: task.title,
     description: task.description || '',
@@ -50,59 +53,51 @@ const TaskEditForm = ({ task, onSave, onCancel }) => {
       className="bg-white rounded-xl p-4 shadow-sm border border-surface-200"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title */}
-        <div>
-          <input
+        <FormField error={errors.title}>
+          <Input
             type="text"
             value={formData.title}
             onChange={(e) => handleChange('title', e.target.value)}
             placeholder="Task title"
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
-              errors.title ? 'border-error' : 'border-surface-300'
-            }`}
+            className={errors.title ? 'border-error' : 'border-surface-300'}
           />
-          {errors.title && (
-            <p className="text-error text-sm mt-1">{errors.title}</p>
-          )}
-        </div>
+        </FormField>
 
-        {/* Description */}
-        <div>
-          <textarea
+        <FormField>
+          <Input
+            type="textarea"
             value={formData.description}
             onChange={(e) => handleChange('description', e.target.value)}
             placeholder="Description"
             rows={2}
-            className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+            className="border-surface-300"
           />
-        </div>
+        </FormField>
 
-        {/* Priority and Due Date Row */}
         <div className="flex gap-3">
           <div className="flex-1">
-            <select
+            <Select
               value={formData.priority}
               onChange={(e) => handleChange('priority', e.target.value)}
-              className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border-surface-300"
             >
               <option value="high">High Priority</option>
               <option value="medium">Medium Priority</option>
               <option value="low">Low Priority</option>
-            </select>
+            </Select>
           </div>
           <div className="flex-1">
-            <input
+            <Input
               type="date"
               value={formData.dueDate}
               onChange={(e) => handleChange('dueDate', e.target.value)}
-              className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border-surface-300"
             />
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2 pt-2">
-          <motion.button
+          <Button
             type="button"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -110,15 +105,15 @@ const TaskEditForm = ({ task, onSave, onCancel }) => {
             className="px-3 py-1 text-sm text-surface-600 hover:text-surface-800 transition-colors"
           >
             Cancel
-          </motion.button>
-          <motion.button
+          </Button>
+          <Button
             type="submit"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-4 py-1 bg-primary text-white text-sm rounded-lg hover:brightness-110 transition-all"
           >
             Save
-          </motion.button>
+          </Button>
         </div>
       </form>
     </motion.div>

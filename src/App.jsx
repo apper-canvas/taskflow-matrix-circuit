@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Layout from './Layout';
-import Home from './pages/Home';
-import Archive from './pages/Archive';
-import NotFound from './pages/NotFound';
+import HomePage from '@/components/pages/HomePage';
+import ArchivePage from '@/components/pages/ArchivePage';
+import NotFoundPage from '@/components/pages/NotFoundPage';
 import { routes } from './config/routes';
 
 function App() {
@@ -12,10 +12,10 @@ function App() {
       <div className="h-screen flex flex-col overflow-hidden bg-app">
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path={routes.home.path} element={<Home />} />
-            <Route path={routes.archive.path} element={<Archive />} />
-            <Route path="*" element={<NotFound />} />
+<Route index element={<HomePage />} />
+            <Route path={routes.home.path} element={<HomePage />} />
+            <Route path={routes.archive.path} element={<ArchivePage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
         

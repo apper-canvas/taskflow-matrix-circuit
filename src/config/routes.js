@@ -1,5 +1,5 @@
-import Home from '../pages/Home';
-import Archive from '../pages/Archive';
+import HomePage from '@/components/pages/HomePage';
+import ArchivePage from '@/components/pages/ArchivePage';
 
 export const routes = {
   home: {
@@ -7,14 +7,14 @@ export const routes = {
     label: 'Tasks',
     path: '/tasks',
     icon: 'CheckSquare',
-    component: Home
+component: HomePage
   },
   archive: {
     id: 'archive',
     label: 'Archive',
     path: '/archive',
     icon: 'Archive',
-    component: Archive
+component: ArchivePage
   }
 };
 

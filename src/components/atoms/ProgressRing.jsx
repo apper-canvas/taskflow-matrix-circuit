@@ -1,13 +1,14 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 
-const ProgressRing = ({ completed, total }) => {
+const ProgressRing = ({ completed, total, className = '' }) => {
   const percentage = total > 0 ? (completed / total) * 100 : 0;
   const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative w-12 h-12">
+    <div className={`relative w-12 h-12 ${className}`}>
       <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 48 48">
         {/* Background circle */}
         <circle
